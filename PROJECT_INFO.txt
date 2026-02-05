@@ -1,0 +1,53 @@
+PROJECT INFORMATION
+
+1. BACKEND CONFIGURATION
+------------------------
+Database: MongoDB Atlas
+Cluster: cluster0.kqoe6mj.mongodb.net
+Connection URI: mongodb+srv://Jeswar:0123456@cluster0.kqoe6mj.mongodb.net/ecommerce?appName=Cluster0
+Port: 5001
+
+Admin Credentials:
+Email: imjeswar@gmail.com
+Password: 0123456
+
+2. FRONTEND DESIGN
+------------------
+Theme: Warm "Sunshine" Palette
+Primary Colors: Orange / Amber (replaced Blue)
+Background: Gradient (#E7F5FD to #FCEBE0)
+Font: Playfair Display (Headings/Main Content)
+
+Key UI Features:
+- Glassmorphism on Welcome Box
+- Pulsing Orb Animations
+- Hover Zoom Effects
+- Gradient Text
+
+3. SITE STRUCTURE & CONTENT
+---------------------------
+Footer Sections & Pages:
+
+A. ABOUT
+   - Contact Us
+   - About Us
+   - Careers
+
+B. HELP
+   - Payments
+   - Shipping
+   - Cancellation & Returns
+   - FAQ
+
+C. CONSUMER POLICY
+   - Terms Of Use
+   - Security
+   - Privacy
+
+D. SOCIAL
+   - Social Media Icons (No accounts linked yet)
+
+4. RECENT COMMANDS
+------------------
+- Frontend: npm run dev (Port 5173)
+- Backend: npm run dev (Port 5001)

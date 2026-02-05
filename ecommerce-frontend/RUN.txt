@@ -1,0 +1,37 @@
+Jesify Frontend — How to Run
+
+Prerequisites
+- Node.js (LTS recommended)
+- npm
+
+Setup
+- Open a terminal in the project directory.
+- Install dependencies:
+
+  npm install
+
+Development
+- Start the dev server:
+
+  npm run dev
+
+- Open the printed local URL in your browser.
+
+Production Build
+- Create an optimized build:
+
+  npm run build
+
+- Preview the production build locally:
+
+  npm run preview
+
+Quality
+- Run lint checks:
+
+  npm run lint
+
+Notes
+- This frontend uses Vite + React + TypeScript.
+- Data is stored in browser localStorage; no backend required to explore.
+- If ports are busy, Vite will choose another port automatically.
