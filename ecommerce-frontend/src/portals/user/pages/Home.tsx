@@ -38,7 +38,7 @@ export const Home: React.FC = () => {
       </section>
 
       <section>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Link to={`/products?category=Mobiles`} className="group">
             <div className="bg-white border border-gray-100 rounded-xl p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <Smartphone className="w-8 h-8 text-gray-700" />
@@ -97,7 +97,7 @@ export const Home: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <div key={product.id} className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <Link to={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-gray-100 rounded-xl mb-4">

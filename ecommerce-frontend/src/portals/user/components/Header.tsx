@@ -71,7 +71,7 @@ export const Header: React.FC = () => {
 
         <div className="flex items-center gap-4">
           <Link to="/seller/register">
-            <Button variant="ghost" className="hidden sm:flex items-center gap-2">
+            <Button variant="ghost" className="hidden md:flex items-center gap-2">
               <Store className="h-5 w-5" />
               Become a Seller
             </Button>
@@ -104,10 +104,10 @@ export const Header: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
-                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">Profile</Link>
-                <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">My Orders</Link>
+                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">Profile</Link>
+                  <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">My Orders</Link>
                   {user.role === 'seller' && (
-                  <Link to="/seller" className="block px-4 py-2 text-sm text-primary-600 font-medium hover:bg-primary-50">Seller Dashboard</Link>
+                    <Link to="/seller" className="block px-4 py-2 text-sm text-primary-600 font-medium hover:bg-primary-50">Seller Dashboard</Link>
                   )}
                   <button
                     onClick={() => { logout(); navigate('/'); }}
