@@ -15,17 +15,17 @@ export const Home: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <section className="relative rounded-2xl overflow-hidden px-8 py-20 text-center shadow-2xl bg-white/30 backdrop-blur-md border border-white/50 hover:scale-[1.01] transition-transform duration-500 group">
+      <section className="relative rounded-2xl overflow-hidden px-4 sm:px-8 py-12 sm:py-20 text-center shadow-2xl bg-white/30 backdrop-blur-md border border-white/50 hover:scale-[1.01] transition-transform duration-500 group">
         {/* Background Orbs */}
-        <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-yellow-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse delay-700"></div>
+        <div className="absolute top-[-30%] left-[-20%] w-48 h-48 sm:w-96 sm:h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 sm:opacity-50 animate-pulse"></div>
+        <div className="absolute bottom-[-30%] right-[-20%] w-48 h-48 sm:w-96 sm:h-96 bg-yellow-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 sm:opacity-50 animate-pulse delay-700"></div>
 
         {/* Content */}
         <div className="relative z-10">
-          <h1 className="text-5xl font-extrabold sm:text-6xl mb-6 font-brand bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow-sm">
+          <h1 className="text-3xl sm:text-5xl font-extrabold mb-4 sm:mb-6 font-brand bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow-sm">
             Welcome to Jesify
           </h1>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
+          <p className="text-base sm:text-xl text-gray-700 max-w-2xl mx-auto mb-8 sm:mb-10 font-medium leading-relaxed">
             Your one-stop shop for everything unique. Discover amazing products from verified sellers.
           </p>
           <Link to="/seller/register" className="inline-block relative">

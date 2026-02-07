@@ -1,0 +1,37 @@
+Jesify E-commerce — How to Run
+
+Prerequisites
+- Node.js 18 or newer installed
+- npm installed
+- MongoDB Atlas connection URI available
+
+Backend (API Server)
+1) Open a terminal
+2) Navigate to backend:
+   cd ecommerce-backend
+3) Install dependencies:
+   npm install
+4) Create a .env file with:
+   PORT=5001
+   MONGO_URI=mongodb+srv://Jeswar:0123456@cluster0.kqoe6mj.mongodb.net/ecommerce?appName=Cluster0
+5) Start the server:
+   npm run dev
+6) Expected:
+   - Server listens on http://localhost:5001
+   - Logs show “MongoDB Connected”
+
+Frontend (Web App)
+1) Open a new terminal
+2) Navigate to frontend:
+   cd ecommerce-frontend
+3) Install dependencies:
+   npm install
+4) Start the dev server:
+   npm run dev
+5) Open the app in your browser:
+   http://localhost:5173
+
+Notes
+- Do NOT commit .env files to GitHub (already ignored via .gitignore)
+- If port is busy, change PORT in ecommerce-backend/.env
+- Ensure backend is running before using API-dependent features on the frontend

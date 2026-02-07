@@ -44,24 +44,27 @@ export const Header: React.FC = () => {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/jesifylogo1.jpeg" alt="Jesify logo" className="h-8 w-8" />
-            <span className="text-2xl font-bold text-primary-600 font-heading">Jesify</span>
+    <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/70 backdrop-blur-lg shadow-sm transition-all duration-300 hover:bg-white/90">
+      <div className="container mx-auto flex h-16 items-center justify-between px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4 md:gap-8">
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary-400 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
+              <img src="/jesifylogo1.jpeg" alt="Jesify logo" className="relative h-8 w-8" />
+            </div>
+            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-600 to-amber-600 bg-clip-text text-transparent font-heading">Jesify</span>
           </Link>
 
-          <div className="hidden md:block w-[600px]">
-            <div className="relative">
+          <div className="hidden md:block md:w-[480px] lg:w-[600px]">
+            <div className="relative group">
               <Input
                 placeholder="Search for products..."
-                className="pl-10 rounded-full bg-gray-50 border-gray-200 focus:bg-white"
+                className="pl-10 rounded-full bg-white/50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary-200 transition-all shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleSearch}
               />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
             </div>
           </div>
         </div>
@@ -101,10 +104,10 @@ export const Header: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50">Profile</Link>
-                  <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50">My Orders</Link>
+                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">Profile</Link>
+                <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600">My Orders</Link>
                   {user.role === 'seller' && (
-                    <Link to="/seller" className="block px-4 py-2 text-sm text-primary-600 font-medium hover:bg-primary-50">Seller Dashboard</Link>
+                  <Link to="/seller" className="block px-4 py-2 text-sm text-primary-600 font-medium hover:bg-primary-50">Seller Dashboard</Link>
                   )}
                   <button
                     onClick={() => { logout(); navigate('/'); }}
