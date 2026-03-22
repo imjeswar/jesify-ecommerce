@@ -6,7 +6,7 @@ let io: Server;
 export const initSocket = (server: HttpServer) => {
   io = new Server(server, {
     cors: {
-      origin: true,
+      origin: "https://jesify-ecommerce-clgc.vercel.app",
       methods: ["GET", "POST"],
       credentials: true
     },

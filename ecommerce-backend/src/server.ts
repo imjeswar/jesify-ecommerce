@@ -20,7 +20,10 @@ const PORT = process.env.PORT || 5001;
 // Initialize Socket.io
 initSocket(server);
 
-app.use(cors());
+app.use(cors({
+  origin: "https://jesify-ecommerce-clgc.vercel.app",
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/products', productRoutes);
