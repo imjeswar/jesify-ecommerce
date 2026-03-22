@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './shared/context/AuthContext';
 import { seedData } from './shared/utils/seedData';
 import { CartProvider } from './shared/context/CartContext';
@@ -62,7 +62,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <SocketProvider>
           <CartProvider>
@@ -124,7 +124,7 @@ function App() {
         </CartProvider>
       </SocketProvider>
     </AuthProvider>
-  </BrowserRouter>
+  </HashRouter>
   );
 }
 
