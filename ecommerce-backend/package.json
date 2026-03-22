@@ -2,7 +2,7 @@
   "name": "ecommerce-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist_new/server.js",
+  "main": "dist/server.js",
   "scripts": {
   "build": "tsc",
   "start": "node dist/server.js"
