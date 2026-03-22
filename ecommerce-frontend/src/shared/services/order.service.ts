@@ -36,12 +36,30 @@ export const OrderService = {
     return newOrder;
   },
 
-  updateOrderStatus: (orderId: string, status: Order['status']) => {
+  updateOrderStatus: async (orderId: string, status: Order['status'], socket?: any) => {
+    // 1. Update Local Storage (Mock)
     const all = OrderService.getAllOrders();
     const updated = all.map(order => 
       order.id === orderId ? { ...order, status } : order
     );
     localStorage.setItem(ORDERS_KEY, JSON.stringify(updated));
+
+    // 2. Call Backend API
+    try {
+      await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      
+      // The backend will emit the socket event, 
+      // but we can also emit locally for immediate UI update if needed
+      if (socket) {
+        socket.emit('orderUpdate', { id: orderId, status });
+      }
+    } catch (error) {
+      console.error('Failed to update order status on backend:', error);
+    }
   },
 
   // Helper to calculate revenue for a specific seller

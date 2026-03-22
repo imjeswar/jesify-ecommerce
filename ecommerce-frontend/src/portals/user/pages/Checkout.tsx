@@ -6,7 +6,8 @@ import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import { formatCurrency } from '../../../shared/utils/helpers';
 import { OrderService } from '../../../shared/services/order.service';
-import { Check, CreditCard, Truck, Wallet, ShieldCheck } from 'lucide-react';
+import { Check, CreditCard, Truck, Wallet, ShieldCheck, ChevronLeft, MapPin, Receipt, ShieldAlert } from 'lucide-react';
+import { cn } from '../../../shared/utils/cn';
 
 type CheckoutStep = 'address' | 'summary' | 'payment';
 
@@ -39,23 +40,20 @@ export const Checkout: React.FC = () => {
     e.preventDefault();
     if (address.street && address.city && address.zip) {
       setCurrentStep('summary');
+      window.scrollTo(0, 0);
     }
   };
 
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Create mock order
     const newOrder = OrderService.createOrder({
       userId: user?.id || 'guest',
       userName: user?.name || address.name || 'Guest',
       userEmail: user?.email || 'guest@example.com',
       items: items.map(item => ({
         productId: item.id,
-        sellerId: item.sellerId, // Assuming item has sellerId
+        sellerId: item.sellerId,
         quantity: item.quantity,
         price: item.price,
         name: item.name,
@@ -63,35 +61,33 @@ export const Checkout: React.FC = () => {
       })),
       totalAmount: total,
       shippingAddress: `${address.name}, ${address.street}, ${address.landmark ? address.landmark + ', ' : ''}${address.city}, ${address.state} - ${address.zip}. Phone: ${address.phone}${address.alternatePhone ? ', Alt: ' + address.alternatePhone : ''}`,
-      paymentMethod: 'COD'
+      paymentMethod: paymentMethod === 'DUMMY' ? 'DUMMY' : 'COD'
     });
-
     setPlacedOrderId(newOrder.id);
     clearCart();
     setIsProcessing(false);
     setOrderPlaced(true);
+    window.scrollTo(0, 0);
   };
 
   if (orderPlaced) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white p-8 rounded-sm shadow-sm border border-gray-200 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10 text-green-600" />
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 text-center">
+        <div className="bg-white p-10 sm:p-16 rounded-sm shadow-sm border border-primary-50 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+          <div className="w-24 h-24 bg-secondary-400 rounded-sm flex items-center justify-center mx-auto mb-8 shadow-inner group-hover:scale-110 transition-transform duration-500">
+            <Check className="w-12 h-12 text-primary-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h2>
-          <p className="text-gray-500 mb-8">
-            Thank you for your order. Your order ID is <span className="font-mono font-medium text-gray-900">#{placedOrderId}</span>.
-            <br />
-            We will deliver your items to <span className="font-medium text-gray-900">{address.name}</span> soon.
+          <h2 className="text-3xl font-black text-primary-500 uppercase tracking-tighter italic mb-4">Transmission Successful</h2>
+          <p className="text-primary-300 font-medium mb-10 max-w-md mx-auto">
+             Order Log <span className="text-primary-500 font-black font-mono tracking-widest bg-secondary-400 px-3 py-1 rounded-sm border border-primary-50 ml-1">#{placedOrderId.slice(-12).toUpperCase()}</span> has been verified and added to the dispatch queue.
           </p>
-          
-          <div className="flex justify-center gap-4">
-             <Button onClick={() => navigate('/')} variant="outline">
-                Continue Shopping
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+             <Button onClick={() => navigate('/')} variant="outline" className="px-10 py-5 rounded-sm uppercase font-black tracking-widest text-[10px] border-primary-100 h-auto">
+                Return to Hub
              </Button>
-             <Button onClick={() => navigate('/orders')} className="bg-primary-600 hover:bg-primary-700 text-white">
-                View Orders
+             <Button onClick={() => navigate('/orders')} className="px-10 py-5 rounded-sm uppercase font-black tracking-widest text-[10px] shadow-lg h-auto">
+                View Shipment Logs
              </Button>
           </div>
         </div>
@@ -100,312 +96,217 @@ export const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-4">
-        
-        {/* Step 1: Login Check (Implicitly done if user is logged in, else simplified) */}
-        <div className="bg-white p-4 rounded-sm shadow-sm border border-gray-200">
-           <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-gray-200 text-gray-500 px-2 py-1 text-xs font-bold rounded-sm">1</div>
-                <div>
-                   <h3 className="text-gray-500 font-medium uppercase text-sm">Login</h3>
-                   <div className="flex items-center gap-2 mt-1">
-                      <Check className="w-4 h-4 text-gray-600" />
-                      <span className="font-medium text-gray-900">{user?.name || 'Guest User'}</span>
-                      <span className="text-gray-500 text-sm">{user?.email || '+91 9999999999'}</span>
-                   </div>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/login')}>Change</Button>
-           </div>
-        </div>
-
-        {/* Step 2: Delivery Address */}
-        <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${currentStep === 'address' ? 'p-6' : 'p-4'}`}>
-           {currentStep === 'address' ? (
-             <div className="bg-primary-50 -mx-6 -mt-6 px-6 py-4 mb-4 border-b border-gray-200">
-                <h3 className="text-primary-600 font-medium uppercase text-sm flex items-center gap-3">
-                  <span className="bg-primary-600 text-white px-2 py-0.5 text-xs rounded-sm">2</span>
-                  Delivery Address
-                </h3>
-             </div>
-           ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="bg-gray-200 text-gray-500 px-2 py-1 text-xs font-bold rounded-sm">2</div>
-                   <div>
-                      <h3 className="text-gray-500 font-medium uppercase text-sm">Delivery Address</h3>
-                      <p className="mt-1 font-medium text-gray-900">{address.name} {address.zip && `- ${address.zip}`}</p>
-                      <p className="text-sm text-gray-500 truncate max-w-md">{address.street}, {address.city}...</p>
-                   </div>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => setCurrentStep('address')}>Change</Button>
-              </div>
-           )}
-
-           {currentStep === 'address' && (
-             <form onSubmit={handleAddressSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input 
-                    label="Name" 
-                    value={address.name} 
-                    onChange={e => setAddress({...address, name: e.target.value})} 
-                    required 
-                  />
-                  <Input 
-                    label="10-digit mobile number" 
-                    value={address.phone} 
-                    onChange={e => setAddress({...address, phone: e.target.value})} 
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input 
-                    label="Pincode" 
-                    value={address.zip} 
-                    onChange={e => setAddress({...address, zip: e.target.value})} 
-                    required 
-                  />
-                  <Input 
-                    label="Locality" 
-                    value={address.city} 
-                    onChange={e => setAddress({...address, city: e.target.value})} 
-                    required 
-                  />
-                </div>
-                <Input 
-                    label="Address (Area and Street)" 
-                    value={address.street} 
-                    onChange={e => setAddress({...address, street: e.target.value})} 
-                    required 
-                    className="w-full"
-                />
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input 
-                    label="City/District/Town" 
-                    value={address.city} 
-                    onChange={e => setAddress({...address, city: e.target.value})} 
-                    required 
-                  />
-                  <Input 
-                    label="State" 
-                    value={address.state} 
-                    onChange={e => setAddress({...address, state: e.target.value})} 
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input 
-                    label="Landmark (Optional)" 
-                    value={address.landmark} 
-                    onChange={e => setAddress({...address, landmark: e.target.value})} 
-                  />
-                  <Input 
-                    label="Alternate Phone (Optional)" 
-                    value={address.alternatePhone} 
-                    onChange={e => setAddress({...address, alternatePhone: e.target.value})} 
-                  />
-                </div>
-                
-                <div className="mt-4">
-                   <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white rounded-sm px-8 font-medium">
-                      DELIVER HERE
-                   </Button>
-                </div>
-             </form>
-           )}
-        </div>
-
-        {/* Step 3: Order Summary */}
-        <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${currentStep === 'summary' ? 'p-6' : 'p-4'}`}>
-            {currentStep === 'summary' ? (
-             <div className="bg-primary-50 -mx-6 -mt-6 px-6 py-4 mb-4 border-b border-gray-200">
-                <h3 className="text-primary-600 font-medium uppercase text-sm flex items-center gap-3">
-                  <span className="bg-primary-600 text-white px-2 py-0.5 text-xs rounded-sm">3</span>
-                  Order Summary
-                </h3>
-             </div>
-           ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="bg-gray-200 text-gray-500 px-2 py-1 text-xs font-bold rounded-sm">3</div>
-                   <div>
-                      <h3 className="text-gray-500 font-medium uppercase text-sm">Order Summary</h3>
-                      <p className="mt-1 font-medium text-gray-900">{items.length} Items</p>
-                   </div>
-                </div>
-                {currentStep === 'payment' && (
-                   <Button variant="outline" size="sm" onClick={() => setCurrentStep('summary')}>Change</Button>
-                )}
-              </div>
-           )}
-
-           {currentStep === 'summary' && (
-             <div className="space-y-4">
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-4 border-b border-gray-100 pb-4">
-                    <div className="w-24 h-24 bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                       <img src={item.imageUrl} alt={item.name} className="max-h-full max-w-full object-contain" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{item.name}</h4>
-                      <p className="text-sm text-gray-500 mt-1">Seller: {item.sellerName}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-gray-500 text-sm">Quantity: {item.quantity}</span>
-                      </div>
-                      <p className="font-bold text-gray-900 mt-2">{formatCurrency(item.price)}</p>
-                    </div>
-                  </div>
-                ))}
-                
-                <div className="mt-6 flex justify-between items-center bg-white border-t border-gray-100 pt-4">
-                   <div className="text-gray-600">
-                     Order confirmation email will be sent to <span className="font-bold text-gray-900">{user?.email || 'your email'}</span>
-                   </div>
-                   <Button 
-                      className="bg-orange-500 hover:bg-orange-600 text-white rounded-sm px-8 font-medium uppercase"
-                      onClick={() => setCurrentStep('payment')}
-                   >
-                      Continue
-                   </Button>
-                </div>
-             </div>
-           )}
-        </div>
-
-        {/* Step 4: Payment Options */}
-        <div className={`bg-white rounded-sm shadow-sm border border-gray-200 ${currentStep === 'payment' ? 'p-6' : 'p-4'}`}>
-             {currentStep === 'payment' ? (
-             <div className="bg-primary-50 -mx-6 -mt-6 px-6 py-4 mb-4 border-b border-gray-200">
-                <h3 className="text-primary-600 font-medium uppercase text-sm flex items-center gap-3">
-                  <span className="bg-primary-600 text-white px-2 py-0.5 text-xs rounded-sm">4</span>
-                  Payment Options
-                </h3>
-             </div>
-           ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="bg-gray-200 text-gray-500 px-2 py-1 text-xs font-bold rounded-sm">4</div>
-                   <div>
-                      <h3 className="text-gray-500 font-medium uppercase text-sm">Payment Options</h3>
-                   </div>
-                </div>
-              </div>
-           )}
-
-           {currentStep === 'payment' && (
-             <div className="space-y-4">
-                <div className="space-y-3">
-                   {/* UPI */}
-                   <div className={`border p-4 rounded-sm flex items-start gap-3 opacity-60 bg-gray-50 cursor-not-allowed`}>
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        disabled
-                        className="mt-1 cursor-not-allowed"
-                      />
-                      <label className="flex-1 cursor-not-allowed">
-                         <div className="font-medium text-gray-500">UPI</div>
-                         <div className="text-sm text-gray-400">Google Pay, PhonePe, Paytm (Unavailable)</div>
-                      </label>
-                   </div>
-
-                   {/* Credit/Debit Card */}
-                   <div className={`border p-4 rounded-sm flex items-start gap-3 opacity-60 bg-gray-50 cursor-not-allowed`}>
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        disabled
-                        className="mt-1 cursor-not-allowed"
-                      />
-                      <label className="flex-1 cursor-not-allowed">
-                         <div className="font-medium text-gray-500 flex items-center gap-2">
-                            Credit / Debit / ATM Card
-                            <CreditCard className="w-4 h-4 text-gray-400" />
-                         </div>
-                         <div className="text-sm text-gray-400">Add new card for payment (Unavailable)</div>
-                      </label>
-                   </div>
-
-                   {/* Wallets */}
-                   <div className={`border p-4 rounded-sm flex items-start gap-3 opacity-60 bg-gray-50 cursor-not-allowed`}>
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        disabled
-                        className="mt-1 cursor-not-allowed"
-                      />
-                      <label className="flex-1 cursor-not-allowed">
-                         <div className="font-medium text-gray-500 flex items-center gap-2">
-                            Wallets
-                            <Wallet className="w-4 h-4 text-gray-400" />
-                         </div>
-                         <div className="text-sm text-gray-400">Paytm, PhonePe Wallet (Unavailable)</div>
-                      </label>
-                   </div>
-
-                   {/* Cash on Delivery */}
-                   <div className={`border p-4 rounded-sm flex items-start gap-3 ${paymentMethod === 'COD' ? 'bg-primary-50 border-primary-500' : 'border-gray-200'}`}>
-                      <input 
-                        type="radio" 
-                        name="payment" 
-                        id="cod" 
-                        checked={paymentMethod === 'COD'} 
-                        onChange={() => setPaymentMethod('COD')} 
-                        className="mt-1"
-                      />
-                      <label htmlFor="cod" className="flex-1 cursor-pointer">
-                         <div className="font-medium text-gray-900 flex items-center gap-2">
-                            Cash on Delivery
-                            <Truck className="w-4 h-4 text-gray-400" />
-                         </div>
-                         <div className="text-sm text-gray-500">Pay when you receive the order</div>
-                         {paymentMethod === 'COD' && (
-                             <div className="mt-2">
-                                <Button 
-                                    className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-sm uppercase"
-                                    onClick={handlePlaceOrder}
-                                    disabled={isProcessing}
-                                >
-                                    {isProcessing ? 'Processing...' : 'Place Order'}
-                                </Button>
-                             </div>
-                         )}
-                      </label>
-                   </div>
-                </div>
-             </div>
-           )}
-        </div>
-
+    <div className="max-w-7xl mx-auto space-y-6 pb-20">
+      {/* Checkout Header */}
+      <div className="flex items-center gap-4 px-4 sm:px-0">
+         <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary-400 rounded-sm text-primary-200">
+            <ChevronLeft className="w-6 h-6" />
+         </button>
+         <div>
+            <h1 className="text-2xl font-black text-primary-500 uppercase tracking-tighter italic">Secure Checkout</h1>
+            <p className="text-[10px] font-black text-primary-200 uppercase tracking-widest mt-0.5">Step {currentStep === 'address' ? '1' : currentStep === 'summary' ? '2' : '3'} of 3</p>
+         </div>
       </div>
 
-      {/* Right Sidebar: Price Details */}
-      <div className="lg:col-span-1">
-         <div className="bg-white p-4 rounded-sm shadow-sm border border-gray-200 sticky top-24">
-            <h3 className="text-gray-500 font-bold uppercase text-sm border-b border-gray-200 pb-4 mb-4">Price Details</h3>
-            
-            <div className="space-y-4 text-gray-900">
-               <div className="flex justify-between">
-                  <span>Price ({items.length} items)</span>
-                  <span>{formatCurrency(total)}</span>
-               </div>
-               <div className="flex justify-between">
-                  <span>Delivery Charges</span>
-                  <span className="text-green-600">FREE</span>
-               </div>
-               <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-4 border-dashed">
-                  <span>Total Payable</span>
-                  <span>{formatCurrency(total)}</span>
-               </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-6">
+          {/* USER AUTH BLOCK */}
+          <div className="bg-white p-5 rounded-sm border border-primary-50 shadow-sm mx-4 sm:mx-0">
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                   <div className="h-10 w-10 bg-secondary-400 rounded-sm flex items-center justify-center text-primary-500 font-black text-xs border border-primary-50">01</div>
+                   <div>
+                      <h3 className="text-[10px] font-black text-primary-200 uppercase tracking-widest">Authentication Verified</h3>
+                      <div className="flex items-center gap-3 mt-1">
+                         <span className="text-xs font-black text-primary-500 uppercase">{user?.name || 'Guest User'}</span>
+                      </div>
+                   </div>
+                </div>
+                <button onClick={() => navigate('/login')} className="text-[9px] font-black text-primary-300 uppercase underline underline-offset-4 hover:text-primary-500">Switch ID</button>
+             </div>
+          </div>
 
-            <div className="mt-4 text-green-600 font-medium text-sm flex items-center gap-2">
-               <ShieldCheck className="w-5 h-5" />
-               Safe and Secure Payments. 100% Authentic products.
-            </div>
-         </div>
+          {/* ADDRESS BLOCK */}
+          <div className={cn("bg-white border rounded-sm shadow-sm transition-all mx-4 sm:mx-0", currentStep === 'address' ? "p-0 border-primary-500 ring-4 ring-primary-500/5 shadow-xl" : "p-5 border-primary-50 opacity-80")}>
+             {currentStep === 'address' ? (
+                <div>
+                   <div className="bg-primary-500 px-6 py-4 flex items-center gap-4">
+                      <span className="h-7 w-7 bg-white text-primary-500 rounded-sm flex items-center justify-center font-black text-xs">02</span>
+                      <h3 className="text-xs font-black text-secondary-500 uppercase tracking-[0.2em]">Shipping Coordinates</h3>
+                   </div>
+                   <form onSubmit={handleAddressSubmit} className="p-6 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <Input label="Recipient Full Identity" value={address.name} onChange={e => setAddress({...address, name: e.target.value})} required className="h-12 font-bold text-xs uppercase" />
+                         <Input label="Primary Communication Link" value={address.phone} onChange={e => setAddress({...address, phone: e.target.value})} required className="h-12 font-bold text-xs uppercase" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <Input label="Regional Pincode" value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} required className="h-12 font-bold text-xs uppercase" />
+                         <Input label="Hub Locality" value={address.city} onChange={e => setAddress({...address, city: e.target.value})} required className="h-12 font-bold text-xs uppercase" />
+                      </div>
+                      <Input label="Detailed Access Address (Street / Area / Floor)" value={address.street} onChange={e => setAddress({...address, street: e.target.value})} required className="h-12 font-bold text-xs uppercase w-full" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <Input label="State Jurisdiction" value={address.state} onChange={e => setAddress({...address, state: e.target.value})} required className="h-12 font-bold text-xs uppercase" />
+                         <Input label="Landmark Descriptor" value={address.landmark} onChange={e => setAddress({...address, landmark: e.target.value})} className="h-12 font-bold text-xs uppercase" />
+                      </div>
+                      <div className="pt-4">
+                         <Button type="submit" className="w-full sm:w-auto px-12 py-6 rounded-sm uppercase font-black tracking-widest text-[10px] shadow-lg">Confirm Coordinates</Button>
+                      </div>
+                   </form>
+                </div>
+             ) : (
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-5">
+                      <div className="h-10 w-10 bg-secondary-400 rounded-sm flex items-center justify-center text-primary-500 font-black text-xs border border-primary-50">02</div>
+                      <div>
+                         <h3 className="text-[10px] font-black text-primary-200 uppercase tracking-widest">Shipment Target</h3>
+                         <p className="text-xs font-black text-primary-500 mt-1 uppercase truncate max-w-[200px] sm:max-w-md">{address.name} • {address.street.slice(0, 30)}...</p>
+                      </div>
+                   </div>
+                   <button onClick={() => setCurrentStep('address')} className="text-[9px] font-black text-primary-300 uppercase underline underline-offset-4 hover:text-primary-500">Edit Path</button>
+                </div>
+             )}
+          </div>
+
+          {/* SUMMARY BLOCK */}
+          <div className={cn("bg-white border rounded-sm shadow-sm transition-all mx-4 sm:mx-0", currentStep === 'summary' ? "p-0 border-primary-500 ring-4 ring-primary-500/5 shadow-xl" : "p-5 border-primary-50 opacity-80")}>
+             {currentStep === 'summary' ? (
+                <div>
+                   <div className="bg-primary-500 px-6 py-4 flex items-center gap-4">
+                      <span className="h-7 w-7 bg-white text-primary-500 rounded-sm flex items-center justify-center font-black text-xs">03</span>
+                      <h3 className="text-xs font-black text-secondary-500 uppercase tracking-[0.2em]">Package Inventory Audit</h3>
+                   </div>
+                   <div className="p-6 space-y-6">
+                      {items.map(item => (
+                        <div key={item.id} className="flex gap-6 items-center border-b border-primary-50 pb-6 last:border-0 last:pb-0">
+                           <div className="w-20 h-20 bg-white border border-secondary-400 p-2 rounded-sm flex-shrink-0">
+                              <img src={item.imageUrl} alt="" className="h-full w-full object-contain" />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                              <h4 className="text-xs font-black text-primary-500 uppercase tracking-tight truncate leading-tight mb-1">{item.name}</h4>
+                              <p className="text-[9px] font-black text-primary-200 uppercase tracking-widest mb-3">Merchant: {item.sellerName}</p>
+                              <div className="flex items-center justify-between">
+                                 <span className="text-[11px] font-black text-primary-500 tabular-nums">{formatCurrency(item.price)} <span className="text-primary-200">x {item.quantity}</span></span>
+                              </div>
+                           </div>
+                        </div>
+                      ))}
+                      <div className="pt-4 border-t border-primary-50 flex justify-end">
+                         <Button onClick={() => { setCurrentStep('payment'); window.scrollTo(0, 0); }} className="w-full sm:w-auto px-12 py-6 rounded-sm uppercase font-black tracking-widest text-[10px] shadow-lg">Finalize Load</Button>
+                      </div>
+                   </div>
+                </div>
+             ) : (
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-5">
+                      <div className="h-10 w-10 bg-secondary-400 rounded-sm flex items-center justify-center text-primary-500 font-black text-xs border border-primary-50">03</div>
+                      <div>
+                         <h3 className="text-[10px] font-black text-primary-200 uppercase tracking-widest">Inventory Loadout</h3>
+                         <p className="text-xs font-black text-primary-500 mt-1 uppercase tracking-tight">{items.length} Secure Asset Containers</p>
+                      </div>
+                   </div>
+                   {currentStep === 'payment' && (
+                     <button onClick={() => setCurrentStep('summary')} className="text-[9px] font-black text-primary-300 uppercase underline underline-offset-4 hover:text-primary-500">Re-Audit</button>
+                   )}
+                </div>
+             )}
+          </div>
+
+          {/* PAYMENT BLOCK */}
+          <div className={cn("bg-white border rounded-sm shadow-sm transition-all mx-4 sm:mx-0", currentStep === 'payment' ? "p-0 border-primary-500 ring-4 ring-primary-500/5 shadow-xl" : "p-5 border-primary-50 opacity-80")}>
+             {currentStep === 'payment' ? (
+                <div>
+                   <div className="bg-primary-500 px-6 py-4 flex items-center gap-4">
+                      <span className="h-7 w-7 bg-white text-primary-500 rounded-sm flex items-center justify-center font-black text-xs">04</span>
+                      <h3 className="text-xs font-black text-secondary-500 uppercase tracking-[0.2em]">Settlement Protocols</h3>
+                   </div>
+                   <div className="p-6 space-y-4">
+                      {/* DUMMY MODE */}
+                      <div className={cn("border-2 p-5 rounded-sm flex gap-4 transition-all cursor-pointer relative group", paymentMethod === 'DUMMY' ? "border-primary-500 bg-secondary-400 shadow-inner" : "border-primary-50 hover:bg-secondary-50")}>
+                         <input type="radio" id="dummy" name="pay" checked={paymentMethod === 'DUMMY'} onChange={() => setPaymentMethod('DUMMY')} className="w-5 h-5 mt-1 border-primary-100 text-primary-500 focus:ring-0" />
+                         <label htmlFor="dummy" className="flex-1 cursor-pointer">
+                            <div className="flex items-center gap-2 mb-1">
+                               <p className="text-xs font-black text-primary-500 uppercase tracking-widest">Digital Auth Protocol</p>
+                               <ShieldCheck className="w-4 h-4 text-green-600" />
+                            </div>
+                            <p className="text-[10px] font-bold text-primary-300 uppercase leading-relaxed">Instant confirmation via encrypted test tunnel.</p>
+                            {paymentMethod === 'DUMMY' && (
+                               <div className="mt-6 animate-in fade-in duration-500">
+                                  <Button onClick={handlePlaceOrder} disabled={isProcessing} className="w-full py-6 rounded-sm font-black uppercase tracking-widest text-xs h-auto shadow-lg">
+                                     {isProcessing ? 'Executing Payload...' : 'Initiate Secure Payment'}
+                                  </Button>
+                               </div>
+                            )}
+                         </label>
+                      </div>
+
+                      {/* COD MODE */}
+                      <div className={cn("border-2 p-5 rounded-sm flex gap-4 transition-all cursor-pointer relative group", paymentMethod === 'COD' ? "border-primary-500 bg-secondary-400 shadow-inner" : "border-primary-50 hover:bg-secondary-50")}>
+                         <input type="radio" id="cod" name="pay" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} className="w-5 h-5 mt-1 border-primary-100 text-primary-500 focus:ring-0" />
+                         <label htmlFor="cod" className="flex-1 cursor-pointer">
+                            <div className="flex items-center gap-2 mb-1">
+                               <p className="text-xs font-black text-primary-500 uppercase tracking-widest">Physical Settlement (COD)</p>
+                               <Truck className="w-4 h-4 text-primary-400" />
+                            </div>
+                            <p className="text-[10px] font-bold text-primary-300 uppercase leading-relaxed">Settle balance upon successful deployment.</p>
+                            {paymentMethod === 'COD' && (
+                               <div className="mt-6 animate-in fade-in duration-500">
+                                  <Button onClick={handlePlaceOrder} disabled={isProcessing} className="w-full py-6 bg-orange-500 hover:bg-orange-600 rounded-sm font-black uppercase tracking-widest text-xs h-auto shadow-lg">
+                                     {isProcessing ? 'Deploying Order...' : 'Confirm Shipment Delivery'}
+                                  </Button>
+                               </div>
+                            )}
+                         </label>
+                      </div>
+                      
+                      {/* UNAVAILABLE MODES */}
+                      <div className="grid grid-cols-2 gap-4 opacity-30 h-16 pointer-events-none">
+                         <div className="bg-secondary-400 rounded-sm"></div>
+                         <div className="bg-secondary-400 rounded-sm"></div>
+                      </div>
+                   </div>
+                </div>
+             ) : (
+                <div className="flex items-center gap-5">
+                   <div className="h-10 w-10 bg-secondary-400 rounded-sm flex items-center justify-center text-primary-500 font-black text-xs border border-primary-50">04</div>
+                   <h3 className="text-[10px] font-black text-primary-200 uppercase tracking-widest">Settlement Selection</h3>
+                </div>
+             )}
+          </div>
+        </div>
+
+        {/* SIDEBAR PRICE LOGS */}
+        <div className="lg:col-span-4 px-4 sm:px-0">
+           <div className="bg-white rounded-sm border border-primary-50 shadow-sm sticky top-24 overflow-hidden">
+              <div className="px-6 py-5 bg-secondary-400/50 border-b border-primary-50">
+                 <h3 className="text-[10px] font-black text-primary-500 uppercase tracking-[0.2em]">Transaction Ledger</h3>
+              </div>
+              <div className="p-6 space-y-6">
+                 <div className="space-y-4">
+                    <div className="flex justify-between items-center text-xs font-bold text-primary-500">
+                       <span className="uppercase tracking-widest text-[10px] text-primary-200">Manifest Value ({items.length})</span>
+                       <span className="tabular-nums">{formatCurrency(total)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs font-bold text-primary-500">
+                       <span className="uppercase tracking-widest text-[10px] text-primary-200">Logistics Fee</span>
+                       <span className="text-green-600 uppercase tracking-widest italic text-[10px]">Exempted / Free</span>
+                    </div>
+                    <div className="h-px bg-primary-100/50 border-dashed border-t"></div>
+                    <div className="flex justify-between items-center py-2">
+                       <span className="text-xs font-black text-primary-500 uppercase tracking-widest">Net Payable</span>
+                       <span className="text-2xl font-black text-primary-500 tabular-nums">{formatCurrency(total)}</span>
+                    </div>
+                 </div>
+                 
+                 <div className="bg-secondary-50 p-4 rounded-sm border border-primary-50 space-y-3">
+                    <div className="flex items-center gap-3">
+                       <ShieldCheck className="w-5 h-5 text-green-600" />
+                       <p className="text-[9px] font-black text-primary-500 uppercase tracking-widest">End-to-End Encrypted</p>
+                    </div>
+                    <p className="text-[8px] font-bold text-primary-200 uppercase leading-relaxed">Jesify Vault protects your assets and transaction logs with multi-layer encryption.</p>
+                 </div>
+              </div>
+           </div>
+        </div>
       </div>
     </div>
   );

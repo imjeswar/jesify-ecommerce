@@ -130,5 +130,39 @@ export const ProductService = {
       p.id === productId ? { ...p, ...updates } : p
     );
     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(updated));
+  },
+
+  trackViewedProduct: (productId: string) => {
+    const VIEWED_KEY = 'jesify_viewed_products';
+    const stored = localStorage.getItem(VIEWED_KEY);
+    let viewedIds: string[] = stored ? JSON.parse(stored) : [];
+    
+    // Remove if already exists to move to top
+    viewedIds = viewedIds.filter(id => id !== productId);
+    viewedIds.unshift(productId);
+    
+    // Limit to 20
+    if (viewedIds.length > 20) viewedIds = viewedIds.slice(0, 20);
+    
+    localStorage.setItem(VIEWED_KEY, JSON.stringify(viewedIds));
+  },
+
+  getRecentlyViewedProducts: (limit: number = 10): Product[] => {
+    const VIEWED_KEY = 'jesify_viewed_products';
+    const stored = localStorage.getItem(VIEWED_KEY);
+    const viewedIds: string[] = stored ? JSON.parse(stored) : [];
+    
+    const all = ProductService.getActiveProducts();
+    const viewed = viewedIds
+      .map(id => all.find(p => p.id === id))
+      .filter((p): p is Product => !!p && p.status !== 'BLOCKED');
+
+    // If less than limit, fill with some active products to ensure "minimum 8 to 7"
+    if (viewed.length < limit) {
+      const remaining = all.filter(p => !viewedIds.includes(p.id));
+      return [...viewed, ...remaining].slice(0, limit);
+    }
+    
+    return viewed.slice(0, limit);
   }
 };

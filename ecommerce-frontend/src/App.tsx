@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './shared/context/AuthContext';
 import { seedData } from './shared/utils/seedData';
 import { CartProvider } from './shared/context/CartContext';
+import { SocketProvider } from './shared/context/SocketContext';
 import { UserLayout } from './portals/user/layout/UserLayout';
 import { Home } from './portals/user/pages/Home';
 import { Login } from './portals/user/pages/Login';
@@ -63,8 +64,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <Routes>
+        <SocketProvider>
+          <CartProvider>
+            <Routes>
             {/* User Portal Routes */}
             <Route path="/" element={<UserLayout />}>
               <Route index element={<Home />} />
@@ -120,8 +122,9 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+      </SocketProvider>
+    </AuthProvider>
+  </BrowserRouter>
   );
 }
 

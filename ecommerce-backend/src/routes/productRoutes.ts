@@ -1,9 +1,11 @@
-import express from "express";
+
+import express from 'express';
+import { getProducts, getProductById, createProduct } from '../controllers/productController';
+// import { protect, seller } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-    res.json({ message: "Products route working ✅" });
-});
+router.route('/').get(getProducts).post(createProduct);
+router.route('/:id').get(getProductById);
 
 export default router;

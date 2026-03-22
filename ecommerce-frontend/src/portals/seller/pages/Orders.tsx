@@ -3,11 +3,17 @@ import React from 'react';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { OrderService } from '../../../shared/services/order.service';
 import { formatCurrency } from '../../../shared/utils/helpers';
-import { Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { useSocket } from '../../../shared/context/SocketContext';
 
 export const SellerOrders: React.FC = () => {
   const { user } = useAuth();
-  const [orders] = React.useState(OrderService.getOrdersBySeller(user?.id || ''));
+  const { socket } = useSocket();
+  const [orders, setOrders] = React.useState(OrderService.getOrdersBySeller(user?.id || ''));
+
+  const handleStatusChange = async (orderId: string, newStatus: any) => {
+    await OrderService.updateOrderStatus(orderId, newStatus, socket);
+    setOrders((prev: any[]) => prev.map((o: any) => o.id === orderId ? { ...o, status: newStatus } : o));
+  };
 
   if (!user) return null;
 
@@ -22,15 +28,7 @@ export const SellerOrders: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'PENDING': return <Clock className="h-4 w-4" />;
-      case 'PROCESSING': return <Package className="h-4 w-4" />;
-      case 'SHIPPED': return <Truck className="h-4 w-4" />;
-      case 'DELIVERED': return <CheckCircle className="h-4 w-4" />;
-      default: return null;
-    }
-  };
+
 
   return (
     <div className="space-y-6">
@@ -52,14 +50,23 @@ export const SellerOrders: React.FC = () => {
                       Placed by {order.userName} on {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                    {getStatusIcon(order.status)}
-                    {order.status}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <select 
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      className={`text-xs font-medium px-3 py-1 rounded-full border-none focus:ring-2 focus:ring-primary-500 cursor-pointer ${getStatusColor(order.status)}`}
+                    >
+                      <option value="PENDING">PENDING</option>
+                      <option value="PROCESSING">PROCESSING</option>
+                      <option value="SHIPPED">SHIPPED</option>
+                      <option value="DELIVERED">DELIVERED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
-                  {order.items.filter(item => item.sellerId === user.id).map((item, index) => (
+                  {order.items.filter((item: any) => item.sellerId === user.id).map((item: any, index: number) => (
                     <div key={index} className="flex items-center justify-between py-2 bg-gray-50 rounded-lg px-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden">
@@ -84,8 +91,8 @@ export const SellerOrders: React.FC = () => {
                     <p className="text-lg font-bold text-gray-900">
                       {formatCurrency(
                         order.items
-                          .filter(item => item.sellerId === user.id)
-                          .reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                          .filter((item: any) => item.sellerId === user.id)
+                          .reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0)
                       )}
                     </p>
                   </div>
