@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Package, Search, ChevronRight, Truck, CheckCircle, Clock, XCircle, MapPin, Receipt, MessageSquare } from 'lucide-react';
+import { Package, Search, ChevronRight, Truck, CheckCircle, Clock, XCircle, MapPin, Receipt, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { useSocket } from '../../../shared/context/SocketContext';
 import { OrderService } from '../../../shared/services/order.service';

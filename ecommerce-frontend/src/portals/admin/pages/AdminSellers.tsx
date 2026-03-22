@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { Button } from '../../../shared/components/Button';
-import { Store, ShieldCheck, Mail, Phone, MoreHorizontal, UserCheck, UserX, AlertCircle } from 'lucide-react';
+import { Store, ShieldCheck, Phone, MoreHorizontal, UserCheck, UserX, AlertCircle } from 'lucide-react';
 import { cn } from '../../../shared/utils/cn';
 
 export const AdminSellers: React.FC = () => {

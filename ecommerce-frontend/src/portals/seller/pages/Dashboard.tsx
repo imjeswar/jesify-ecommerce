@@ -188,7 +188,7 @@ export const Dashboard: React.FC = () => {
                 Analytics engine awaiting initial sales data
               </div>
             ) : (
-              topProducts.map((p, idx) => (
+              topProducts.map((p) => (
                 <div key={p.id} className="flex items-center gap-4 p-4 border border-secondary-400/50 hover:border-primary-100 rounded-sm transition-all bg-secondary-50/50 group">
                   <div className="h-14 w-14 flex-shrink-0 bg-white border border-secondary-400 p-1 rounded-sm overflow-hidden">
                     <img src={p.imageUrl} alt="" className="h-full w-full object-contain" />

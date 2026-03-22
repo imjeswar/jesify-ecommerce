@@ -6,7 +6,7 @@ import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import { formatCurrency } from '../../../shared/utils/helpers';
 import { OrderService } from '../../../shared/services/order.service';
-import { Check, CreditCard, Truck, Wallet, ShieldCheck, ChevronLeft, MapPin, Receipt, ShieldAlert } from 'lucide-react';
+import { Check, Truck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { cn } from '../../../shared/utils/cn';
 
 type CheckoutStep = 'address' | 'summary' | 'payment';

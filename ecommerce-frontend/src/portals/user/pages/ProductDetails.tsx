@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Truck, ShieldCheck, Star, Zap, ThumbsUp, ChevronLeft, Share2 } from 'lucide-react';
+import { ShoppingCart, Truck, ShieldCheck, Star, Zap, ChevronLeft, Share2 } from 'lucide-react';
 import { ProductService } from '../../../shared/services/product.service';
-import type { Product, Review } from '../../../shared/types/product.types';
+import type { Product } from '../../../shared/types/product.types';
 import { formatCurrency, placeholderDataUrl } from '../../../shared/utils/helpers';
 import { Button } from '../../../shared/components/Button';
 import { useCart } from '../../../shared/context/CartContext';
@@ -14,13 +14,9 @@ export const ProductDetails: React.FC = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const [product, setProduct] = useState<Product | undefined>(undefined);
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>('');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewRating, setReviewRating] = useState<number>(5);
-  const [reviewComment, setReviewComment] = useState<string>('');
 
   useEffect(() => {
     if (id) {
@@ -34,7 +30,6 @@ export const ProductDetails: React.FC = () => {
       if (found) {
         ProductService.trackViewedProduct(found.id);
         setActiveImage(found.images?.[0] || found.imageUrl);
-        setReviews(ProductService.getProductReviews(found.id));
         const allProducts = ProductService.getActiveProducts();
         const related = allProducts
           .filter(p => p.category === found.category && p.id !== found.id)
@@ -58,18 +53,6 @@ export const ProductDetails: React.FC = () => {
     if (!user) { navigate('/login'); return; }
     addToCart(product);
     navigate('/checkout');
-  };
-
-  const submitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!product || !user) return;
-    ProductService.addReview(product.id, user.id, user.name, reviewRating, reviewComment.trim());
-    setReviews(ProductService.getProductReviews(product.id));
-    const refreshed = ProductService.getProductById(product.id);
-    if (refreshed) setProduct(refreshed);
-    setReviewComment('');
-    setReviewRating(5);
-    setShowReviewForm(false);
   };
 
   if (loading) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ProductService } from '../../../shared/services/product.service';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { Button } from '../../../shared/components/Button';

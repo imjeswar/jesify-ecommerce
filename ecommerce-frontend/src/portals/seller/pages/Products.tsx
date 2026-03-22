@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Search, X, Check, Package, MoreVertical, LayoutGrid, List } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Check, Package, LayoutGrid, List } from 'lucide-react';
 import { ProductService } from '../../../shared/services/product.service';
 import { useAuth } from '../../../shared/context/AuthContext';
 import type { Product } from '../../../shared/types/product.types';
