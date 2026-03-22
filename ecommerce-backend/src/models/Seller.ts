@@ -7,6 +7,7 @@ const sellerSchema = new mongoose.Schema({
   aadhaarNumber: { type: String, required: true },
   panNumber: String,
   isVerified: { type: Boolean, default: false },
+  status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED', 'BLOCKED'], default: 'PENDING' },
   address: String,
 }, { timestamps: true });
 

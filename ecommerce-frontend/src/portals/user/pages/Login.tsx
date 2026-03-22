@@ -12,11 +12,13 @@ export const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, role, name);
-    if (role === 'seller') navigate('/seller');
-    else navigate('/');
+    const success = await login(email, role, name);
+    if (success) {
+      if (role === 'seller') navigate('/seller');
+      else navigate('/');
+    }
   };
 
   return (

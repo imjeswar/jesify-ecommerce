@@ -116,3 +116,81 @@ export const getMe = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+// @desc    Get all users (Admin only)
+// @route   GET /api/auth/users
+// @access  Private/Admin
+export const getAllUsers = async (req: Request, res: Response) => {
+    try {
+        const users = await User.find({}).select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Get all sellers (Admin only)
+// @route   GET /api/auth/sellers
+// @access  Private/Admin
+export const getAllSellers = async (req: Request, res: Response) => {
+    try {
+        const sellers = await Seller.find({}).populate('user', 'name email');
+        res.status(200).json(sellers);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Update seller status
+// @route   PUT /api/auth/sellers/:id/status
+// @access  Private/Admin
+export const updateSellerStatus = async (req: Request, res: Response) => {
+    try {
+        const { status } = req.body;
+        const seller = await Seller.findById(req.params.id);
+
+        if (seller) {
+            seller.status = status;
+            if (status === 'APPROVED') seller.isVerified = true;
+            const updatedSeller = await seller.save();
+            res.json(updatedSeller);
+        } else {
+            res.status(404).json({ message: 'Seller not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+// @desc    Register a seller profile
+// @route   POST /api/auth/seller-register
+// @access  Private
+export const registerSeller = async (req: Request, res: Response) => {
+    try {
+        const { userId, storeName, description, aadhaarNumber, address } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const seller = await Seller.create({
+            user: userId,
+            storeName,
+            description,
+            aadhaarNumber,
+            address,
+            status: 'PENDING'
+        });
+
+        // Update user role to seller
+        user.role = 'seller';
+        await user.save();
+
+        res.status(201).json(seller);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { User, UserRole, UserStatus } from '../types/user.types';
 import type { SellerProfile, SellerStatus } from '../types/seller.types';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 export interface AuditLog {
   id: string;
   action: string;
@@ -13,7 +15,7 @@ export interface AuditLog {
 interface AuthContextType {
   user: User | null;
   sellerProfile: SellerProfile | null;
-  login: (email: string, role: UserRole, name?: string, password?: string) => boolean;
+  login: (email: string, role: UserRole, name?: string, password?: string) => Promise<boolean>;
   logout: () => void;
   registerSeller: (profile: Omit<SellerProfile, 'id' | 'userId' | 'isVerified' | 'status'>) => void;
   isAuthenticated: boolean;
@@ -42,16 +44,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const storedUser = localStorage.getItem('jesify_user');
     const storedSeller = localStorage.getItem('jesify_seller');
-    const storedAllSellers = localStorage.getItem('jesify_all_sellers');
-    const storedAllUsers = localStorage.getItem('jesify_all_users');
-    const storedLogs = localStorage.getItem('jesify_audit_logs');
 
     if (storedUser) setUser(JSON.parse(storedUser));
     if (storedSeller) setSellerProfile(JSON.parse(storedSeller));
-    if (storedAllSellers) setAllSellers(JSON.parse(storedAllSellers));
-    if (storedAllUsers) setAllUsers(JSON.parse(storedAllUsers));
-    if (storedLogs) setAuditLogs(JSON.parse(storedLogs));
+    
+    // Initial fetch for admin
+    fetchAdminData();
   }, []);
+
+  const fetchAdminData = async () => {
+    try {
+      const usersRes = await fetch(`${API_URL}/api/auth/users`);
+      const sellersRes = await fetch(`${API_URL}/api/auth/sellers`);
+      
+      if (usersRes.ok) setAllUsers(await usersRes.json());
+      if (sellersRes.ok) setAllSellers(await sellersRes.json());
+    } catch (err) {
+      console.error('Failed to fetch admin data:', err);
+    }
+  };
 
   // Sync user status with global list
   useEffect(() => {
@@ -94,64 +105,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('jesify_audit_logs', JSON.stringify(updatedLogs));
   }, [auditLogs]);
 
-  const login = useCallback((email: string, role: UserRole, name: string = 'User', password?: string) => {
-    // 1. Admin Hardcoded Check
-    if (role === 'admin') {
-      if (email === 'imjeswar@gmail.com' && password === '0123456') {
-        const adminUser: User = {
-          id: 'admin-id',
-          name: 'Admin',
-          email: 'imjeswar@gmail.com',
-          role: 'admin',
-          status: 'ACTIVE'
-        };
-        setUser(adminUser);
-        localStorage.setItem('jesify_user', JSON.stringify(adminUser));
-        return true;
-      }
-      return false;
-    }
-
-    // 2. Check existing users
-    const existingUser = allUsers.find(u => u.email === email);
-
-    if (existingUser) {
-      if (existingUser.status === 'BLOCKED') {
-        alert("Your account has been BLOCKED by Admin.");
-        return false;
-      }
-      // Login existing
-      setUser(existingUser);
-      localStorage.setItem('jesify_user', JSON.stringify(existingUser));
-
-      // Load associated seller profile if exists
-      if (existingUser.role === 'seller') {
-        const associatedSeller = allSellers.find(s => s.userId === existingUser.id);
-        if (associatedSeller) {
-          setSellerProfile(associatedSeller);
-          localStorage.setItem('jesify_seller', JSON.stringify(associatedSeller));
-        }
-      }
+  const login = useCallback(async (email: string, role: UserRole, name: string = 'User', password?: string) => {
+    // 1. Admin Hardcoded Check (Override for dev/demo)
+    if (role === 'admin' && email === 'imjeswar@gmail.com' && password === '0123456') {
+      const adminUser: User = {
+        id: 'admin-id',
+        name: 'Admin',
+        email: 'imjeswar@gmail.com',
+        role: 'admin',
+        status: 'ACTIVE'
+      };
+      setUser(adminUser);
+      localStorage.setItem('jesify_user', JSON.stringify(adminUser));
+      fetchAdminData();
       return true;
     }
 
-    // 3. Create New User
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      email,
-      role,
-      status: 'ACTIVE'
-    };
+    // 2. Real Backend Login / Register flow
+    try {
+      // Try Login First
+      let response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: password || 'nopassword' })
+      });
 
-    setUser(newUser);
-    localStorage.setItem('jesify_user', JSON.stringify(newUser));
+      // If login fails (user not found), try Register
+      if (!response.ok) {
+         response = await fetch(`${API_URL}/api/auth/register`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ name, email, password: password || 'nopassword', role })
+         });
+      }
 
-    // Add to global user list
-    updateAllUsers([...allUsers, newUser]);
-
-    return true;
-  }, [allUsers, allSellers, updateAllUsers]);
+      if (response.ok) {
+        const data = await response.json();
+        const userData: User = {
+          id: data._id || data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          status: 'ACTIVE'
+        };
+        setUser(userData);
+        localStorage.setItem('jesify_user', JSON.stringify(userData));
+        
+        if (data.sellerProfile) {
+          setSellerProfile(data.sellerProfile);
+          localStorage.setItem('jesify_seller', JSON.stringify(data.sellerProfile));
+        }
+        
+        if (userData.role === 'admin') fetchAdminData();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Auth error:', err);
+      return false;
+    }
+  }, [allSellers, fetchAdminData]);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -160,54 +173,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('jesify_seller');
   }, []);
 
-  const registerSeller = useCallback((profileData: Omit<SellerProfile, 'id' | 'userId' | 'isVerified' | 'status'>) => {
+  const registerSeller = useCallback(async (profileData: Omit<SellerProfile, 'id' | 'userId' | 'isVerified' | 'status'>) => {
     if (!user) return;
-    const newProfile: SellerProfile = {
-      ...profileData,
-      id: Math.random().toString(36).substr(2, 9),
-      userId: user.id,
-      isVerified: false,
-      status: 'PENDING',
-    };
-    setSellerProfile(newProfile);
-    localStorage.setItem('jesify_seller', JSON.stringify(newProfile));
+    
+    try {
+      const response = await fetch(`${API_URL}/api/auth/seller-register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          ...profileData
+        })
+      });
 
-    // Add to all sellers list
-    updateAllSellers([...allSellers, newProfile]);
+      if (response.ok) {
+        const newProfile = await response.json();
+        setSellerProfile(newProfile);
+        localStorage.setItem('jesify_seller', JSON.stringify(newProfile));
 
-    // Update user role to seller
-    const updatedUser = { ...user, role: 'seller' as UserRole };
-    setUser(updatedUser);
-    localStorage.setItem('jesify_user', JSON.stringify(updatedUser));
-
-    // Update global user list
-    const updatedUsers = allUsers.map(u => u.id === user.id ? updatedUser : u);
-    updateAllUsers(updatedUsers);
-  }, [user, allSellers, allUsers, updateAllSellers, updateAllUsers]);
-
-  const updateSellerStatus = useCallback((sellerId: string, status: SellerStatus) => {
-    const seller = allSellers.find(s => s.id === sellerId);
-    if (!seller) return;
-
-    const updatedSellers = allSellers.map(s =>
-      s.id === sellerId ? { ...s, status, isVerified: status === 'APPROVED' } : s
-    );
-    updateAllSellers(updatedSellers);
-
-    // If it's the current user's seller profile
-    if (sellerProfile && sellerProfile.id === sellerId) {
-      const updatedProfile = { ...sellerProfile, status, isVerified: status === 'APPROVED' };
-      setSellerProfile(updatedProfile);
-      localStorage.setItem('jesify_seller', JSON.stringify(updatedProfile));
+        // Update local user role
+        const updatedUser = { ...user, role: 'seller' as UserRole };
+        setUser(updatedUser);
+        localStorage.setItem('jesify_user', JSON.stringify(updatedUser));
+      }
+    } catch (err) {
+      console.error('Seller registration error:', err);
     }
+  }, [user]);
 
-    addAuditLog(
-      status === 'APPROVED' ? 'APPROVE_SELLER' : status === 'BLOCKED' ? 'BLOCK_SELLER' : 'UPDATE_SELLER',
-      `Seller ${seller.storeName} status changed to ${status}`
-    );
-  }, [allSellers, sellerProfile, updateAllSellers, addAuditLog]);
+  const updateSellerStatus = useCallback(async (sellerId: string, status: SellerStatus) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/sellers/${sellerId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        const updatedSeller = await response.json();
+        setAllSellers(allSellers.map(s => s.id === sellerId ? updatedSeller : s));
+        
+        if (sellerProfile && sellerProfile.id === sellerId) {
+          setSellerProfile(updatedSeller);
+          localStorage.setItem('jesify_seller', JSON.stringify(updatedSeller));
+        }
+
+        addAuditLog(
+          status === 'APPROVED' ? 'APPROVE_SELLER' : status === 'BLOCKED' ? 'BLOCK_SELLER' : 'UPDATE_SELLER',
+          `Seller status changed to ${status}`
+        );
+      }
+    } catch (err) {
+      console.error('Failed to update seller status:', err);
+    }
+  }, [allSellers, sellerProfile, addAuditLog]);
 
   const toggleUserBlock = useCallback((userId: string) => {
+    // This would also be an API call in a full system
+    // For now keeping local toggle but sync could be added
     const targetUser = allUsers.find(u => u.id === userId);
     if (!targetUser) return;
 
@@ -215,13 +238,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updatedUsers = allUsers.map(u =>
       u.id === userId ? { ...u, status: newStatus } : u
     );
-    updateAllUsers(updatedUsers);
+    setAllUsers(updatedUsers);
 
     addAuditLog(
       newStatus === 'BLOCKED' ? 'BLOCK_USER' : 'UNBLOCK_USER',
-      `User ${targetUser.name} (${targetUser.email}) was ${newStatus}`
+      `User ${targetUser.name} was ${newStatus}`
     );
-  }, [allUsers, updateAllUsers, addAuditLog]);
+  }, [allUsers, addAuditLog]);
 
   const getAllSellers = useCallback(() => allSellers, [allSellers]);
   const getAllUsers = useCallback(() => allUsers, [allUsers]);

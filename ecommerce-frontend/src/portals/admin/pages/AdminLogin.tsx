@@ -11,11 +11,11 @@ export const AdminLogin: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const success = login(email, 'admin', 'Admin', password);
+    const success = await login(email, 'admin', 'Admin', password);
     
     if (success) {
       navigate('/admin');
