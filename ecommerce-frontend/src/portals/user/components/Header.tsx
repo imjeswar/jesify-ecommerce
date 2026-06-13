@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
   
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const searchContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+  const buttonRef = React.useRef<HTMLDivElement | null>(null);
 
   const handleSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && searchTerm.trim()) {
