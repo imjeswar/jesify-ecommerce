@@ -7,8 +7,8 @@ import { formatCurrency, placeholderDataUrl } from '../../../shared/utils/helper
 import { Button } from '../../../shared/components/Button';
 import { 
   Smartphone, Laptop, Tv, Shirt, Sparkles, 
-  Home as HomeIcon, ShoppingCart, Truck, 
-  ShieldCheck, Gift, ArrowRight, Zap, Star, Heart
+  Home as HomeIcon, ShoppingCart, 
+  ArrowRight, Heart
 } from 'lucide-react';
 
 export const Home: React.FC = () => {

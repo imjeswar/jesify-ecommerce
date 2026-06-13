@@ -12,7 +12,8 @@ export const Header: React.FC = () => {
   const { user, logout, sellerProfile } = useAuth();
   const { items } = useCart();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false); // Mobile Drawer
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false); // Desktop User Dropdown
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [suggestions, setSuggestions] = React.useState<Product[]>([]);
@@ -52,8 +53,11 @@ export const Header: React.FC = () => {
   React.useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (menuOpen && menuRef.current && !menuRef.current.contains(target) && buttonRef.current && !buttonRef.current.contains(target)) {
-        setMenuOpen(false);
+      if (userMenuOpen && menuRef.current && !menuRef.current.contains(target)) {
+        setUserMenuOpen(false);
+      }
+      if (menuOpen && buttonRef.current && !buttonRef.current.contains(target)) {
+        // Only close mobile menu if we click outside the drawer, but drawer has its own backdrop click handler
       }
       if (showSuggestions && searchContainerRef.current && !searchContainerRef.current.contains(target)) {
         setShowSuggestions(false);
@@ -61,7 +65,7 @@ export const Header: React.FC = () => {
     };
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
-  }, [menuOpen, showSuggestions]);
+  }, [menuOpen, userMenuOpen, showSuggestions]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary-100 bg-secondary-500/95 backdrop-blur-md shadow-sm">
@@ -161,7 +165,7 @@ export const Header: React.FC = () => {
             <div className="hidden md:block relative" ref={menuRef}>
               <button
                 className="flex items-center gap-2 p-2 text-primary-500 hover:text-primary-600 transition-colors"
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
                 <div className="w-8 h-8 rounded-sm bg-primary-500 flex items-center justify-center text-secondary-500 font-black text-sm border border-primary-600">
                   {user ? user.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
@@ -170,7 +174,7 @@ export const Header: React.FC = () => {
               </button>
 
               {/* User Dropdown */}
-              {user && menuOpen && (
+              {user && userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border border-primary-100 rounded-sm shadow-xl py-2 z-50 overflow-hidden">
                   <div className="px-4 py-3 border-b border-primary-50 mb-1">
                     <p className="text-sm font-black text-primary-500 truncate uppercase">{user.name}</p>
@@ -193,7 +197,7 @@ export const Header: React.FC = () => {
                     </Link>
                   )}
                   <button
-                    onClick={() => { logout(); navigate('/'); setMenuOpen(false); }}
+                    onClick={() => { logout(); navigate('/'); setUserMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors tracking-widest uppercase mt-1 border-t border-primary-50"
                   >
                     <LogOut className="h-4 w-4" />
@@ -202,10 +206,10 @@ export const Header: React.FC = () => {
                 </div>
               )}
               
-              {!user && menuOpen && (
+              {!user && userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border border-primary-100 rounded-sm shadow-xl p-4 z-50">
                   <p className="text-sm font-bold text-primary-400 mb-4 uppercase tracking-widest text-center">Welcome to Jesify</p>
-                  <Link to="/login" onClick={() => setMenuOpen(false)}>
+                  <Link to="/login" onClick={() => setUserMenuOpen(false)}>
                     <Button className="w-full rounded-sm font-black uppercase text-[10px] tracking-widest">Login / Sign Up</Button>
                   </Link>
                 </div>
@@ -304,23 +308,14 @@ export const Header: React.FC = () => {
 
           <nav className="flex-1 overflow-y-auto py-4">
             <div className="px-6 py-2">
-              <p className="text-[10px] font-black text-primary-200 uppercase tracking-[0.2em] mb-4">Shop Collections</p>
-              <div className="space-y-4">
-                <Link to="/products" className="flex items-center justify-between text-sm font-black text-primary-400 uppercase tracking-widest hover:text-primary-600" onClick={() => setMenuOpen(false)}>
-                   All Products <ChevronRight className="w-4 h-4" />
-                </Link>
-                <Link to="/products?category=Mobiles" className="flex items-center justify-between text-sm font-black text-primary-400 uppercase tracking-widest hover:text-primary-600" onClick={() => setMenuOpen(false)}>
-                   Mobiles <ChevronRight className="w-4 h-4" />
-                </Link>
-                <Link to="/products?category=Fashion" className="flex items-center justify-between text-sm font-black text-primary-400 uppercase tracking-widest hover:text-primary-600" onClick={() => setMenuOpen(false)}>
-                   Fashion <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="px-6 py-8 border-t border-primary-50 mt-8">
-              <p className="text-[10px] font-black text-primary-200 uppercase tracking-[0.2em] mb-4">Account & Tools</p>
+              <p className="text-[10px] font-black text-primary-200 uppercase tracking-[0.2em] mb-4">Menu</p>
               <div className="space-y-6">
+                <Link to="/profile" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                   <User className="w-4 h-4" /> Account Details
+                </Link>
+                <Link to="/settings" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                   <LayoutDashboard className="w-4 h-4" /> Settings
+                </Link>
                 <Link to="/orders" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
                    <Package className="w-4 h-4" /> My Orders
                 </Link>

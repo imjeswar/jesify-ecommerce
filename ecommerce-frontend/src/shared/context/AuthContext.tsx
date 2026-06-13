@@ -81,16 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [allUsers, user]);
 
-  // Persistence Helpers
-  const updateAllSellers = useCallback((sellers: SellerProfile[]) => {
-    setAllSellers(sellers);
-    localStorage.setItem('jesify_all_sellers', JSON.stringify(sellers));
-  }, []);
 
-  const updateAllUsers = useCallback((users: User[]) => {
-    setAllUsers(users);
-    localStorage.setItem('jesify_all_users', JSON.stringify(users));
-  }, []);
 
   const addAuditLog = useCallback((action: string, details: string) => {
     const newLog: AuditLog = {
