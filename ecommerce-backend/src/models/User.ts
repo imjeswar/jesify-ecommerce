@@ -5,7 +5,9 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['user', 'seller', 'admin'], default: 'user' },
+  status: { type: String, enum: ['ACTIVE', 'BLOCKED'], default: 'ACTIVE' },
   phone: String,
-}, { timestamps: true });
+  cart: { type: Array, default: [] },
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 export const User = mongoose.model('User', userSchema);

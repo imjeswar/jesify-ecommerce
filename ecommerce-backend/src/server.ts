@@ -6,6 +6,7 @@ import connectDB from './config/db';
 import productRoutes from './routes/productRoutes';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
+import cartRoutes from './routes/cartRoutes';
 import { initSocket } from './socket';
 
 dotenv.config();
@@ -21,7 +22,7 @@ const PORT = process.env.PORT || 5001;
 initSocket(server);
 
 app.use(cors({
-  origin: "https://jesify-ecommerce-clgc.vercel.app",
+  origin: true,
   credentials: true
 }));
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(express.json());
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

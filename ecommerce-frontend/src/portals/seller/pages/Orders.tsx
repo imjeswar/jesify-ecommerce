@@ -42,19 +42,19 @@ export const SellerOrders: React.FC = () => {
             </div>
           ) : (
             orders.map((order) => (
-              <div key={order.id} className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <div key={order.id} className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">Order #{order.id}</h3>
                     <p className="text-sm text-gray-500">
                       Placed by {order.userName} on {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
                     <select 
                       value={order.status}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      className={`text-xs font-medium px-3 py-1 rounded-full border-none focus:ring-2 focus:ring-primary-500 cursor-pointer ${getStatusColor(order.status)}`}
+                      className={`text-xs font-medium px-3 py-1 rounded-full border-none focus:ring-2 focus:ring-primary-500 cursor-pointer w-full sm:w-auto ${getStatusColor(order.status)}`}
                     >
                       <option value="PENDING">PENDING</option>
                       <option value="PROCESSING">PROCESSING</option>
@@ -67,9 +67,9 @@ export const SellerOrders: React.FC = () => {
 
                 <div className="space-y-3">
                   {order.items.filter((item: any) => item.sellerId === user.id).map((item: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between py-2 bg-gray-50 rounded-lg px-4">
+                    <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 sm:py-2 bg-gray-50 rounded-lg px-4 gap-2">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden">
+                        <div className="h-10 w-10 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                           {item.imageUrl && <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />}
                         </div>
                         <div>
@@ -77,16 +77,16 @@ export const SellerOrders: React.FC = () => {
                           <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                         </div>
                       </div>
-                      <p className="font-medium text-gray-900">{formatCurrency(item.price * item.quantity)}</p>
+                      <p className="font-medium text-gray-900 self-end sm:self-auto">{formatCurrency(item.price * item.quantity)}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
+                <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="text-sm text-gray-500 max-w-full truncate">
                     Shipping to: {order.shippingAddress}
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right w-full sm:w-auto">
                     <p className="text-sm text-gray-500">Total Revenue</p>
                     <p className="text-lg font-bold text-gray-900">
                       {formatCurrency(

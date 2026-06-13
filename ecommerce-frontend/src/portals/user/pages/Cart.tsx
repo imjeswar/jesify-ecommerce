@@ -50,8 +50,8 @@ export const Cart: React.FC = () => {
               
               {/* Product Info */}
               <div className="flex-1 flex flex-col justify-between min-w-0">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="min-w-0">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                  <div className="min-w-0 w-full sm:w-auto">
                     <Link to={`/product/${item.id}`} className="block">
                       <h3 className="font-black text-primary-500 uppercase tracking-tight truncate hover:text-primary-700 transition-colors">{item.name}</h3>
                     </Link>
@@ -62,7 +62,7 @@ export const Cart: React.FC = () => {
                       <span className="bg-secondary-400 px-2 py-1 rounded-sm">In Stock</span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right mt-2 sm:mt-0">
                     <p className="text-lg font-black text-primary-500">{formatCurrency(item.price)}</p>
                     <p className="text-[10px] text-primary-200 line-through font-bold">{formatCurrency(item.price * 1.25)}</p>
                   </div>

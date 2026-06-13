@@ -52,7 +52,9 @@ export const ProductDetails: React.FC = () => {
     if (!product || product.status === 'BLOCKED') return;
     if (!user) { navigate('/login'); return; }
     addToCart(product);
-    navigate('/checkout');
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 50);
   };
 
   if (loading) {

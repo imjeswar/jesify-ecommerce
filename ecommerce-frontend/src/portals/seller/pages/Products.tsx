@@ -121,8 +121,35 @@ export const Products: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                      <p className="text-[10px] font-black text-primary-200 uppercase tracking-[0.2em] mb-1">{p.category}</p>
-                     <h3 className="text-sm font-black text-primary-500 uppercase tracking-tight truncate leading-tight">{p.name}</h3>
-                     <p className="text-lg font-black text-primary-500 mt-2">{formatCurrency(p.price)}</p>
+                     {editingId === p.id ? (
+                       <div className="space-y-2">
+                         <Input
+                           value={editForm.name}
+                           onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                           className="h-9 font-bold text-xs rounded-sm"
+                           placeholder="Product Name"
+                         />
+                         <Input
+                           type="number"
+                           value={editForm.price}
+                           onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                           className="w-full h-9 font-bold text-xs"
+                           placeholder="Price"
+                         />
+                         <Input
+                           type="number"
+                           value={editForm.stock}
+                           onChange={e => setEditForm({ ...editForm, stock: Number(e.target.value) })}
+                           className="w-full h-9 font-bold text-xs"
+                           placeholder="Stock"
+                         />
+                       </div>
+                     ) : (
+                       <>
+                         <h3 className="text-sm font-black text-primary-500 uppercase tracking-tight truncate leading-tight">{p.name}</h3>
+                         <p className="text-lg font-black text-primary-500 mt-2">{formatCurrency(p.price)}</p>
+                       </>
+                     )}
                   </div>
                </div>
                
@@ -134,12 +161,25 @@ export const Products: React.FC = () => {
                      </span>
                   </div>
                   <div className="flex items-center gap-2">
-                     <button onClick={() => startEdit(p)} className="p-2 bg-secondary-400 rounded-sm text-primary-300 hover:text-primary-500">
-                        <Pencil className="w-4 h-4" />
-                     </button>
-                     <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-50 rounded-sm text-red-400 hover:text-red-600">
-                        <Trash2 className="w-4 h-4" />
-                     </button>
+                     {editingId === p.id ? (
+                       <>
+                         <button onClick={saveEdit} className="p-2 bg-green-500 text-white rounded-sm hover:bg-green-600 shadow-sm">
+                            <Check className="w-4 h-4" />
+                         </button>
+                         <button onClick={cancelEdit} className="p-2 bg-secondary-400 text-primary-500 rounded-sm hover:bg-secondary-500">
+                            <X className="w-4 h-4" />
+                         </button>
+                       </>
+                     ) : (
+                       <>
+                         <button onClick={() => startEdit(p)} className="p-2 bg-secondary-400 rounded-sm text-primary-300 hover:text-primary-500">
+                            <Pencil className="w-4 h-4" />
+                         </button>
+                         <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-50 rounded-sm text-red-400 hover:text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                         </button>
+                       </>
+                     )}
                   </div>
                </div>
                

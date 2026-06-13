@@ -9,6 +9,6 @@ const sellerSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED', 'BLOCKED'], default: 'PENDING' },
   address: String,
-}, { timestamps: true });
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 export const Seller = mongoose.model('Seller', sellerSchema);
