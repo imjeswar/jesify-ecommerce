@@ -11,13 +11,25 @@ export const Login: React.FC = () => {
   const [role, setRole] = useState<UserRole>('user');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, role, name);
-    if (success) {
-      if (role === 'seller') navigate('/seller');
-      else navigate('/');
+    setLoading(true);
+    setError('');
+    try {
+      const success = await login(email, role, name);
+      if (success) {
+        if (role === 'seller') navigate('/seller');
+        else navigate('/');
+      } else {
+        setError('Login failed. Ensure the backend is connected and running.');
+      }
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,6 +58,12 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 border border-red-100 rounded-md text-sm font-medium text-center">
+              {error}
+            </div>
+          )}
+
           <Input
             label="Full Name"
             placeholder="John Doe"
@@ -62,8 +80,8 @@ export const Login: React.FC = () => {
             required
           />
 
-          <Button type="submit" className="w-full" size="lg">
-            Login as {role}
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? 'Logging in...' : `Login as ${role}`}
           </Button>
         </form>
       </div>
