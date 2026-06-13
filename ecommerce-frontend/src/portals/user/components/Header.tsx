@@ -57,7 +57,7 @@ export const Header: React.FC = () => {
         setUserMenuOpen(false);
       }
       if (menuOpen && buttonRef.current && !buttonRef.current.contains(target)) {
-        // Only close mobile menu if we click outside the drawer, but drawer has its own backdrop click handler
+        setMenuOpen(false);
       }
       if (showSuggestions && searchContainerRef.current && !searchContainerRef.current.contains(target)) {
         setShowSuggestions(false);
@@ -73,11 +73,10 @@ export const Header: React.FC = () => {
         <div className="flex h-16 items-center justify-between gap-4">
           
           {/* Logo & Mobile Menu Toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative" ref={buttonRef}>
             <button 
               className="p-2 md:hidden text-primary-500 hover:bg-secondary-100 rounded-sm"
               onClick={() => setMenuOpen(!menuOpen)}
-              ref={buttonRef}
             >
               {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -85,6 +84,63 @@ export const Header: React.FC = () => {
               <img src="/jesifylogo1.jpeg" alt="Jesify logo" className="h-7 w-7 sm:h-8 sm:w-8" />
               <span className="text-xl sm:text-2xl font-black text-primary-500 font-brand tracking-tighter">Jesify</span>
             </Link>
+
+            {/* Mobile Menu Dropdown */}
+            {menuOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-primary-100 rounded-sm shadow-xl py-2 z-50 md:hidden overflow-hidden">
+                {user ? (
+                  <div className="px-4 py-3 border-b border-primary-50 mb-1">
+                    <p className="text-sm font-black text-primary-500 truncate uppercase">{user.name}</p>
+                    <p className="text-[10px] font-bold text-primary-300 truncate tracking-wide">{user.email}</p>
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 border-b border-primary-50 mb-1">
+                    <p className="text-xs font-bold text-primary-400 mb-2 uppercase tracking-widest">Welcome to Jesify</p>
+                    <Button 
+                      className="w-full rounded-sm font-black uppercase text-[10px] tracking-widest"
+                      onClick={() => { setMenuOpen(false); navigate('/login'); }}
+                    >
+                      Login / Sign Up
+                    </Button>
+                  </div>
+                )}
+                
+                <Link to="/profile" className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-primary-400 hover:bg-secondary-50 hover:text-primary-600 transition-colors uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                  <User className="w-4 h-4" /> Account Details
+                </Link>
+                <Link to="/settings" className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-primary-400 hover:bg-secondary-50 hover:text-primary-600 transition-colors uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                  <LayoutDashboard className="w-4 h-4" /> Settings
+                </Link>
+                <Link to="/orders" className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-primary-400 hover:bg-secondary-50 hover:text-primary-600 transition-colors uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                  <Package className="w-4 h-4" /> My Orders
+                </Link>
+                {!sellerProfile && (
+                  <Link to="/seller/register" className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-primary-500 hover:bg-secondary-50 hover:text-primary-600 transition-colors uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
+                    <Store className="w-4 h-4" /> Start Selling
+                  </Link>
+                )}
+                {user?.role === 'seller' && (
+                  <Link to="/seller" className="flex items-center gap-3 px-4 py-2.5 text-xs font-black text-primary-600 hover:bg-primary-50 transition-colors uppercase tracking-widest border-t border-primary-50 mt-1" onClick={() => setMenuOpen(false)}>
+                    <LayoutDashboard className="w-4 h-4" /> Seller Dashboard
+                  </Link>
+                )}
+                 {user?.role === 'admin' && (
+                  <Link to="/admin" className="flex items-center gap-3 px-4 py-2.5 text-xs font-black text-red-600 hover:bg-red-50 transition-colors uppercase tracking-widest border-t border-primary-50 mt-1" onClick={() => setMenuOpen(false)}>
+                    <ShieldCheck className="w-4 h-4" /> Admin Portal
+                  </Link>
+                )}
+
+                {user && (
+                  <button
+                    onClick={() => { logout(); navigate('/'); setMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors tracking-widest uppercase mt-1 border-t border-primary-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Desktop Search Bar */}
@@ -272,92 +328,6 @@ export const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Slide-out Mobile Menu (Drawer style) */}
-      <div className={`fixed inset-0 z-[60] md:hidden transition-all duration-300 ${menuOpen ? 'visible' : 'invisible'}`}>
-        {/* Backdrop */}
-        <div 
-          className={`absolute inset-0 bg-primary-900/40 backdrop-blur-sm transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`}
-          onClick={() => setMenuOpen(false)}
-        />
-        
-        {/* Content */}
-        <div className={`absolute top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl transform transition-transform duration-300 flex flex-col ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="p-6 border-b border-primary-50 flex flex-col gap-4">
-             <div className="flex items-center justify-between">
-                <Link to="/" onClick={() => setMenuOpen(false)}>
-                  <span className="text-2xl font-black text-primary-500 font-brand italic underline decoration-secondary-500 underline-offset-4 decoration-4">Jesify</span>
-                </Link>
-                <button onClick={() => setMenuOpen(false)} className="p-1 rounded-sm hover:bg-secondary-100">
-                  <X className="h-6 w-6 text-primary-400" />
-                </button>
-             </div>
-             
-             {user ? (
-               <div className="flex items-center gap-3 mt-4">
-                 <div className="w-12 h-12 rounded-sm bg-primary-500 flex items-center justify-center text-secondary-500 font-black text-lg">
-                   {user.name.charAt(0).toUpperCase()}
-                 </div>
-                 <div className="overflow-hidden">
-                   <p className="text-sm font-black text-primary-500 truncate uppercase tracking-tight">{user.name}</p>
-                   <p className="text-[10px] font-bold text-primary-300 truncate lowercase">{user.email}</p>
-                 </div>
-               </div>
-             ) : (
-               <div className="mt-4">
-                 <Button 
-                   className="w-full rounded-sm uppercase tracking-widest font-black text-xs py-4"
-                   onClick={() => { setMenuOpen(false); navigate('/login'); }}
-                 >
-                   Sign In / Join Us
-                 </Button>
-               </div>
-             )}
-          </div>
-
-          <nav className="flex-1 overflow-y-auto py-4">
-            <div className="px-6 py-2">
-              <p className="text-[10px] font-black text-primary-200 uppercase tracking-[0.2em] mb-4">Menu</p>
-              <div className="space-y-6">
-                <Link to="/profile" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                   <User className="w-4 h-4" /> Account Details
-                </Link>
-                <Link to="/settings" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                   <LayoutDashboard className="w-4 h-4" /> Settings
-                </Link>
-                <Link to="/orders" className="flex items-center gap-3 text-sm font-black text-primary-400 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                   <Package className="w-4 h-4" /> My Orders
-                </Link>
-                {!sellerProfile && (
-                  <Link to="/seller/register" className="flex items-center gap-3 text-sm font-black text-primary-500 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                    <Store className="w-4 h-4" /> Start Selling
-                  </Link>
-                )}
-                {user?.role === 'seller' && (
-                   <Link to="/seller" className="flex items-center gap-3 text-sm font-black text-primary-600 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                    <LayoutDashboard className="w-4 h-4" /> Seller Dashboard
-                  </Link>
-                )}
-                 {user?.role === 'admin' && (
-                   <Link to="/admin" className="flex items-center gap-3 text-sm font-black text-red-600 uppercase tracking-widest" onClick={() => setMenuOpen(false)}>
-                    <ShieldCheck className="w-4 h-4" /> Admin Portal
-                  </Link>
-                )}
-              </div>
-            </div>
-          </nav>
-
-          {user && (
-            <div className="p-6 border-t border-primary-50 bg-secondary-50/50">
-              <button 
-                onClick={() => { logout(); navigate('/'); setMenuOpen(false); }}
-                className="flex items-center gap-3 text-sm font-black text-red-500 uppercase tracking-widest"
-              >
-                <LogOut className="w-5 h-5" /> Logout
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
     </header>
   );
 };
