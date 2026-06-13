@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { CartItem, Product } from '../types/product.types';
 import { useAuth } from './AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://jesify-ecommerce-rskn.onrender.com';
 
 interface CartContextType {
   items: CartItem[];

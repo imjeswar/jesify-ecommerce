@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { User, UserRole, UserStatus } from '../types/user.types';
 import type { SellerProfile, SellerStatus } from '../types/seller.types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://jesify-ecommerce-rskn.onrender.com';
 
 export interface AuditLog {
   id: string;
