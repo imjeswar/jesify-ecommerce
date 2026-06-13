@@ -209,9 +209,12 @@ export const Header: React.FC = () => {
               {!user && userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border border-primary-100 rounded-sm shadow-xl p-4 z-50">
                   <p className="text-sm font-bold text-primary-400 mb-4 uppercase tracking-widest text-center">Welcome to Jesify</p>
-                  <Link to="/login" onClick={() => setUserMenuOpen(false)}>
-                    <Button className="w-full rounded-sm font-black uppercase text-[10px] tracking-widest">Login / Sign Up</Button>
-                  </Link>
+                  <Button 
+                    className="w-full rounded-sm font-black uppercase text-[10px] tracking-widest"
+                    onClick={() => { setUserMenuOpen(false); navigate('/login'); }}
+                  >
+                    Login / Sign Up
+                  </Button>
                 </div>
               )}
             </div>
@@ -300,9 +303,14 @@ export const Header: React.FC = () => {
                  </div>
                </div>
              ) : (
-               <Link to="/login" onClick={() => setMenuOpen(false)} className="mt-4">
-                 <Button className="w-full rounded-sm uppercase tracking-widest font-black text-xs py-4">Sign In / Join Us</Button>
-               </Link>
+               <div className="mt-4">
+                 <Button 
+                   className="w-full rounded-sm uppercase tracking-widest font-black text-xs py-4"
+                   onClick={() => { setMenuOpen(false); navigate('/login'); }}
+                 >
+                   Sign In / Join Us
+                 </Button>
+               </div>
              )}
           </div>
 
